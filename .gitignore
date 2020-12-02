@@ -1,0 +1,33 @@
+
+*.class
+*.log
+
+# Dotty
+.dotty*
+
+# sbt specific
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+project/build.properties
+.bsp/
+
+# Scala-IDE specific
+.scala_dependencies
+
+# Eclipse specific
+.project
+.classpath
+.cache*
+.settings
+/bin/
+
+# IntelliJ files
+.idea/
+
+# Metals
+.bloop/
+.metals/
