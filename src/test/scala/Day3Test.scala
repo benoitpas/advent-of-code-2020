@@ -3,11 +3,11 @@ import org.junit.Assert._
 
 class Day3Test {
   @Test def testPart1a(): Unit = {
-    assertEquals(7, Day3.countTrees(Day3.terrain1))
+    assertEquals(7, Day3.countTrees(Day3.terrain1,3,1))
   }
 
   @Test def testPart1b(): Unit = {
-    assertEquals(195, Day3.countTrees(Day3.terrain2))
+    assertEquals(195, Day3.countTrees(Day3.terrain2,3,1))
   }
 
 }

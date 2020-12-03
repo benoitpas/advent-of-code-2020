@@ -17,10 +17,9 @@ object Day3 {
     "#...##....#",
     ".#..#...#.#").toIndexedSeq
 
-    def countTrees(terrain : Seq[String]) = {
-      val y = 1 to terrain.length-1
-      val x = y.map(_*3)
-      (x zip y).map((x,y) => {
+    def countTrees(terrain : Seq[String], right: Int, down: Int) = {
+      val p = (1 to terrain.length-1) map ( i => (i * right, i * down))
+      p.map((x,y) => {
         val row = terrain(y)
         row(x % row.length)
       }).filter(_ == '#').length
@@ -28,6 +27,6 @@ object Day3 {
 
 
     def main(args: Array[String]): Unit = {
-      println("part1="+countTrees(terrain2))
+      println("part1="+countTrees(terrain2,3,1))
     }
 }
