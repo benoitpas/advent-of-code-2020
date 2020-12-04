@@ -46,7 +46,59 @@ iyr:2011 ecl:brn hgt:59in""".split("\n").toIndexedSeq
   val passports1 = extractPassportStrings(smallInput).map(passportStringToMap)
   val passports2 = extractPassportStrings(fullInput).map(passportStringToMap)
 
+  def checkYear(value:String, min: Int, max: Int) = {
+    val valueRegex = "\\d{4}".r
+    value match {
+      case valueRegex() => min <= value.toInt && value.toInt <= max
+      case _ => false
+    }
+  }
+
+  def checkHeight(value:String) = {
+    val valueRegex = "(\\d+)(in|cm)".r
+    valueRegex.findFirstMatchIn(value) match {
+      case Some(m) => {
+        val height = m.group(1).toInt
+        val unit = m.group(2)
+        (unit == "cm" && 150 <= height && height <= 193)
+        || (unit =="in" && 59 <= height && height <= 76)
+      }
+      case _ => false
+    }
+  }
+
+  def checkHairColor(value:String) = {
+    val valueRegex = "#(\\d|[a-f]){6}".r
+    valueRegex.matches(value)
+  }
+
+  def CheckEyeColor(value:String) = {
+    val valueRegex = "(amb)|(blu)|(brn)|(gry)|(grn)|(hzl)|(oth)".r
+    valueRegex.matches(value)
+  }
+
+  def CheckPassportID(value:String) = {
+    val valueRegex = "\\d{9}".r
+    valueRegex.matches(value)
+  }
+
+
+  def checkField(field:String, value: String) : Boolean = field match {
+    case "byr" => checkYear(value,1920,2002)
+    case "iyr" => checkYear(value,2010,2020)
+    case "eyr" => checkYear(value,2020,2030)
+    case "hgt" => checkHeight(value)
+    case "hcl" => checkHairColor(value)
+    case "ecl" => CheckEyeColor(value)
+    case "pid" => CheckPassportID(value)
+    case _ => true
+  }
+
+  def checkPassport2(p:Passport) = 
+    checkPassport1(p) && p.foldRight(true)((f,a) => a && checkField(f._1,f._2))
+
   def main(args: Array[String]): Unit = {
     println("Part1=" + countPassport(passports2, checkPassport1))
+    println("Part2=" + countPassport(passports2, checkPassport2))
   }
 }
