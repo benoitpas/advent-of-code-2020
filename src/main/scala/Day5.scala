@@ -13,9 +13,23 @@ object Day5 {
     Integer.parseInt(binary, 2)
   }
 
-  def maxSeatNumber() = fullInput.map(toSeatNumber).reduce(Math.max)
+  val allocatedSeats = fullInput.map(toSeatNumber)
+  val maxSeatNumber = allocatedSeats.reduce(Math.max)
+
+  val findMissingNumber = {
+    val sortedSeatsNumber = allocatedSeats.sorted
+    val emptySlots = (sortedSeatsNumber.tail zip sortedSeatsNumber.dropRight(1)).flatMap(pair => {
+      val d = pair._1 - pair._2
+      if (d > 1) List(pair) else List()
+    }).toList
+    emptySlots(0)._1 - 1
+  }
 
   def main(args: Array[String]): Unit = {
-    println("part1=" + maxSeatNumber())
+    println("part1=" + maxSeatNumber)
+    println("part2=" + findMissingNumber)
+
+    // Front seat: 
+    //   FFFFFFFxxx
   }
 }
