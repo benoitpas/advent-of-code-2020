@@ -18,7 +18,7 @@ iyr:2011 ecl:brn hgt:59in""".split("\n").toIndexedSeq
    
   val fullInput = Source.fromResource("day4-input.txt").getLines.to(LazyList)
 
-  def extractPassportStrings(input: Seq[String]) = 
+  def extractBlocks(input: Seq[String]) = 
     input.foldRight(List[String]())(((s,l) => (s.trim,l) match {
       case ("", List()) => l 
       case ("", ""::_) => l
@@ -43,8 +43,8 @@ iyr:2011 ecl:brn hgt:59in""".split("\n").toIndexedSeq
   def countPassport(passports: List[Passport], check:((Passport)=> Boolean)) =
     passports.filter(check).length
 
-  val passports1 = extractPassportStrings(smallInput).map(passportStringToMap)
-  val passports2 = extractPassportStrings(fullInput).map(passportStringToMap)
+  val passports1 = extractBlocks(smallInput).map(passportStringToMap)
+  val passports2 = extractBlocks(fullInput).map(passportStringToMap)
 
   def checkYear(value:String, min: Int, max: Int) = {
     val valueRegex = "\\d{4}".r

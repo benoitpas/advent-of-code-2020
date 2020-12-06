@@ -28,8 +28,5 @@ object Day5 {
   def main(args: Array[String]): Unit = {
     println("part1=" + maxSeatNumber)
     println("part2=" + findMissingNumber)
-
-    // Front seat: 
-    //   FFFFFFFxxx
   }
 }
