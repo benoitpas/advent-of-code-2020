@@ -21,16 +21,19 @@ a
 b
 """.split("\n").toIndexedSeq
 
-  def processOneForm1(form:String) = form.replaceAll("\\s","").toSet.size
-
-  def processOneForm2(form:String) = form.split(" ").map(_.toSet).reduce(_.intersect(_)).size
+  // The operation is parametrised
+  def processOneForm[T](op: ((Set[Char],Set[Char]) => Set[Char]))(form:String)
+    = form.split(" ").map(_.toSet).toList.reduce(op).size
 
   def processAllForms(forms:Seq[String], processOneForm : (String => Int)) =
     Day4.extractBlocks(forms).map(processOneForm).sum
 
-  def processAllForms1(forms:Seq[String]) = processAllForms(forms, processOneForm1)
-  def processAllForms2(forms:Seq[String]) = processAllForms(forms, processOneForm2)
-  
+  def processAllForms1(forms:Seq[String]) = processAllForms(forms, 
+    processOneForm((s1:Set[Char],s2:Set[Char]) => s1.union(s2)))
+
+  def processAllForms2(forms:Seq[String]) = processAllForms(forms, 
+    processOneForm((s1:Set[Char],s2:Set[Char]) => s1.intersect(s2)))
+
   def main(args: Array[String]): Unit = {
     println("part1=" + processAllForms1(fullInput))
     println("part2=" + processAllForms2(fullInput))
