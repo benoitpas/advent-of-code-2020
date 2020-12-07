@@ -4,7 +4,7 @@ object Day7 {
   val allRules = Source.fromResource("day7-input.txt").getLines.to(LazyList)
 
 
-  val rules = List(
+  val rules1 = List(
     "light red bags contain 1 bright white bag, 2 muted yellow bags.",
     "dark orange bags contain 3 bright white bags, 4 muted yellow bags.",
     "bright white bags contain 1 shiny gold bag.",
@@ -15,7 +15,16 @@ object Day7 {
     "faded blue bags contain no other bags.",
     "dotted black bags contain no other bags.")
  
-  type BagType = (String,String)
+  val rules2 = List(
+    "shiny gold bags contain 2 dark red bags.",
+    "dark red bags contain 2 dark orange bags.",
+    "dark orange bags contain 2 dark yellow bags.",
+    "dark yellow bags contain 2 dark green bags.",
+    "dark green bags contain 2 dark blue bags.",
+    "dark blue bags contain 2 dark violet bags.",
+    "dark violet bags contain no other bags.")
+ 
+    type BagType = (String,String)
   type Rules = Map[BagType,List[(Int, BagType)]]
 
   // No error handling, will break if incorrect input 
@@ -44,14 +53,21 @@ object Day7 {
           else Set[BagType]()
     })
 
-  val rulesMap = parseRules(rules).toMap
+  val rules1Map = parseRules(rules1).toMap
+  val rules2Map = parseRules(rules2).toMap
   val allRulesMap = parseRules(allRules).toMap
 
   def nbBagContain(bagType:BagType, rules:Rules)  = findContain(bagType, rules).size
+
+  def containCount(bagType:BagType, rules:Rules) : Int = 
+    rules(bagType).map { (bagInstance) => bagInstance._1 *
+      (if(bagInstance._1 > 0 ) 1 + containCount(bagInstance._2, rules) else 0)
+      }.sum
 
   val bt = BagType("shiny","gold")
 
   def main(args: Array[String]): Unit = {
     println("part1="+nbBagContain(bt,allRulesMap))
+    println("part2="+containCount(bt,allRulesMap))
   }
 }
