@@ -37,11 +37,11 @@ object Day9 {
           case Some(_) => None
           case None => Some(numberToFind)
         }
-      })
+      }).take(1).toList(0)
 
     def findContiguousSeq(target:Long, numbers:List[Long]) : List[Long] = 
       if (numbers.length > 1) {
-        val seq = (for (i<- (2 to numbers.length)) yield  numbers.sliding(i)).flatten
+        val seq = (for (i<- (2 to numbers.length)) yield  numbers.sliding(i)).to(LazyList).flatten
         val solution = seq.filter(_.sum == target).take(1).toList
         solution match {
           case Nil => findContiguousSeq(target, numbers.tail)
@@ -49,9 +49,15 @@ object Day9 {
         }
       } else List()
 
+    def ComputeEncrytionWeakness(numbers:List[Long], preambuleSize:Int) = {
+      val target = findException(numbers, preambuleSize)
+      val seq = findContiguousSeq(target, numbers)
+      seq.min + seq.max
+    }
     def main(args: Array[String]): Unit = {
-      val target = findException(fullInput,25).toList
-      println("part1="+target)
+      val target = findException(fullInput,25)
+      println("part1=" + target)
+      println("part2=" + ComputeEncrytionWeakness(fullInput,25))
     }
   
 }
