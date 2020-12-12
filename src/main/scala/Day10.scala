@@ -54,23 +54,6 @@ object Day10 {
 
     countDifferences(1) * countDifferences(3)
   }
-/*
-  def countCombinations(adapters:List[Int]) = {
-    val l = adapters.sorted
-    val l2 = 0::l.appended(l.last+3)
-    def countCombinationsRec(l:List[Int]) : Long =
-      l match {
-        case h1::h2::h3::h4::tail => (countCombinationsRec(h2::h3::h4::tail)
-          + (if ((h3 - h1) <= 3) countCombinationsRec(h3::h4::tail) else 0)
-          + (if ((h4 - h1) <= 3) countCombinationsRec(h4::tail) else 0))
-        case h1::h2::h3::Nil =>  1L + (if ((h3 - h1) <= 3) 1L else 0)
-        case h1::h2::Nil => 1 // h2, the last one should always h2=h1+3
-        case h::Nil => 1L
-        case Nil => 0L
-      }
-    countCombinationsRec(l2)
-  }
-  */
 
   def countCombinations(adapters:List[Int]) = {
     val l = adapters.sorted
