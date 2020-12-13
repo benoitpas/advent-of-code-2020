@@ -17,7 +17,7 @@ class Day12Test {
   }
   
   @Test def testPart2b(): Unit = {
-    assertEquals(1148, iterate2(fullInput))
+    assertEquals(52203, iterate2(fullInput))
   }
 
 }
