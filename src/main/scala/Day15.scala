@@ -3,6 +3,9 @@ object Day15 {
   val smallList = List(0,3,6)
   val fullList = List(2,0,6,12,1,3)
 
+  val target1 = 2020
+  val target2 = 30000000
+
   def toLastOccurrences(l:List[Int]) =
     l.zipWithIndex.foldLeft(Map[Int,List[Int]]())((acc,e) => {
       val newPair = acc.get(e._1) match {
@@ -29,10 +32,11 @@ object Day15 {
     loop(initialList.last, initialList.length, toLastOccurrences(initialList.take(initialList.length - 1)))
   }
 
-  def find2020(initialList:List[Int]) =
-    iterate(initialList).filter(_._2 == 2020).take(1).toList(0)._1
+  def find(initialList:List[Int], target: Int) =
+    iterate(initialList).filter(_._2 == target).take(1).toList(0)._1
 
   def main(args: Array[String]): Unit = {
-    println("part1=" + find2020(fullList))
+    println("part1=" + find(fullList, target1))
+    println("part2=" + find(fullList, target2))
   }
 }

@@ -16,7 +16,7 @@ class Day15Test {
       (1428, fullList))
 
     for ((expected,list) <- tests) 
-      yield assertEquals(expected, find2020(list))
+      yield assertEquals(expected, find(list, target1))
   }
   
 }
