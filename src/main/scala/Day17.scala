@@ -12,19 +12,29 @@ object Day17 {
       (row,j) <- input.zipWithIndex;
       (elem,k) <- row.zipWithIndex
       if (elem == '#'))
-      yield (0,j,k)
+      yield List(j,k)
     r.toSet
 
-  def neighbors(point:(Int,Int,Int)) = 
-    val r = for(
-      i <- -1 + point._1 to 1 + point._1;
-      j <- -1 + point._2 to 1 + point._2;
-      k <- -1 + point._3 to 1 + point._3
-      if (i != point._1 || j != point._2 || k != point._3))
-      yield (i,j,k)
-    r.toSet
+  def incDimension(point:Set[List[Int]], newDimension: Int) = {
+    val inc = newDimension - point.head.size
+    val incList = List.fill(inc)(0)
+    point.map( _ ++ incList)
+  }
 
-  def next(points: Set[(Int,Int,Int)]) = {
+  def neighbors(point:List[Int]) = 
+    def loop(point: List[Int]):List[List[Int]] = point match {
+      case head::tail => {
+        val combinations = loop(tail)
+        combinations.flatMap( (c) => List (
+          (head - 1)::c,
+          head::c,
+          (head + 1)::c))
+      }
+      case Nil => List(List())
+    }
+    loop(point).toSet.diff(Set(point))
+
+  def next(points: Set[List[Int]]) = {
     (for (point <- points) yield {
       val pointNeighbors = neighbors(point)
       val nbOccupiedNeighbors = pointNeighbors.intersect(points).size
@@ -44,15 +54,17 @@ object Day17 {
     }).flatten
   }
 
-  def iterate(point:Set[(Int,Int,Int)]) = {
-    val grids = (1 to 6).foldLeft(List(point))((acc,_) => {
+  def iterate(point:Set[List[Int]], dimension: Int) = {
+    val initialGrid = incDimension(point, dimension)
+    val grids = (1 to 6).foldLeft(List(initialGrid))((acc,_) => {
       next(acc.head)::acc
     })
     grids.map(_.size).head
   }
 
   def main(args: Array[String]): Unit = {
-    val allPoints = parseInput(fullInput)
-    println("part1="+iterate(allPoints))
+    val points = parseInput(fullInput)
+    println("part1=" + iterate(points, 3))
+    println("part2=" + iterate(points, 4))
   }
 }
