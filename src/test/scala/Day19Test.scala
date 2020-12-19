@@ -26,10 +26,18 @@ class Day19Test {
   }
 
   @Test def testPart1d(): Unit = {
-    assertEquals(2, countValidMessages(smallInput))
+    assertEquals(2, countValidMessages1(smallInput1))
   }
 
   @Test def testPart1e(): Unit = {
-    assertEquals(126, countValidMessages(fullInput))
+    assertEquals(126, countValidMessages1(fullInput))
+  }
+
+  @Test def testPart1f(): Unit = {
+    assertEquals(3, countValidMessages1(smallInput2))
+  }
+
+  @Test def testPart2a(): Unit = {
+    assertEquals(12, countValidMessages2(smallInput2))
   }
 }
