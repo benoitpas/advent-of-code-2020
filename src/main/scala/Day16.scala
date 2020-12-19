@@ -31,16 +31,17 @@ object Day16 {
 
   type Sections = LazyList[LazyList[String]]
 
+  def extractSections(input:LazyList[String]) = input.foldRight(LazyList[LazyList[String]]())(
+    (s:String, acc:LazyList[LazyList[String]]) => (acc,s.trim) match  {
+      case (Nil,"") => acc
+      case (Nil,s) => LazyList(LazyList(s))
+      case (_,"") => LazyList[String]()#::acc
+      case (head#::tail,s) => (s#::head)#::tail
+  })
+
   def parseInput(input: LazyList[String]) = {
   
-    val sections = input.foldRight(LazyList[LazyList[String]]())(
-      (s:String, acc:LazyList[LazyList[String]]) => (acc,s.trim) match  {
-        case (Nil,"") => acc
-        case (Nil,s) => LazyList(LazyList(s))
-        case (_,"") => LazyList[String]()#::acc
-        case (head#::tail,s) => (s#::head)#::tail
-    })
-
+    val sections = extractSections(input)
     val fieldsRegex = s"([\\w\\s]+):\\s+(\\d+)-(\\d+)\\s+or\\s+(\\d+)-(\\d+)".r
     val fields = sections(0).map(fieldsRegex.findFirstMatchIn(_) match {
       case Some(m) =>(m.group(1) -> List(
