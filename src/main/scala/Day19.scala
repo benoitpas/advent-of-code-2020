@@ -50,21 +50,21 @@ object Day19 {
     "7: 14 5 | 1 21",
     "24: 14 1",
     "",
-//    "abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa",
-//    "bbabbbbaabaabba",
-//    "babbbbaabbbbbabbbbbbaabaaabaaa",
-//    "aaabbbbbbaaaabaababaabababbabaaabbababababaaa",
-//    "bbbbbbbaaaabbbbaaabbabaaa",
-//    "bbbababbbbaaaaaaaabbababaaababaabab",
-//    "ababaaaaaabaaab",
-//    "ababaaaaabbbaba",
-//    "baabbaaaabbaaaababbaababb",
-//    "abbbbabbbbaaaababbbbbbaaaababb",
+    "abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa",
+    "bbabbbbaabaabba",
+    "babbbbaabbbbbabbbbbbaabaaabaaa",
+    "aaabbbbbbaaaabaababaabababbabaaabbababababaaa",
+    "bbbbbbbaaaabbbbaaabbabaaa",
+    "bbbababbbbaaaaaaaabbababaaababaabab",
+    "ababaaaaaabaaab",
+    "ababaaaaabbbaba",
+    "baabbaaaabbaaaababbaababb",
+    "abbbbabbbbaaaababbbbbbaaaababb",
     "aaaaabbaabaaaaababaa",
-//    "aaaabbaaaabbaaa",
-//    "aaaabbaabbaaaaaaabbbabbbaaabbaabaaa",
-//    "babaaabbbaaabaababbaabababaaab",
-//    "aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba",
+    "aaaabbaaaabbaaa",
+    "aaaabbaabbaaaaaaabbbabbbaaabbaabaaa",
+    "babaaabbbaaabaababbaabababaaab",
+    "aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba",
     )
 
   case class LetterRule(index:Int, letter:Char)
@@ -146,47 +146,34 @@ object Day19 {
       (pair) => pair._1 && pair._2.length == 0).size
   }
 
-  /*
-  def generate(rule:Int, allRules:Map[Int, Rule]) :LazyList[String] = 
-    allRules(rule) match {
-      case Rule.Matches(l: Char) => LazyList(l.toString())
-      case Rule.Depends(seq:LazyList[List[Int]]) => seq.flatMap(
-        (rules) => rules.flatMap
-    }*/
-
-    def countValidMessages2(input : LazyList[String]) = {
+  // Regex hint from reddit..that would also have worked for part 1
+  def countValidMessages2(input : LazyList[String]) = {
     val sections = Day16.extractSections(input)
     val originalRules = extractRules(sections(0))
     val rules = originalRules ++ Map(
       8 -> Rule.Depends(LazyList(List(42), List(42,  8))),
       11 -> Rule.Depends(LazyList(List(42, 31), List(42, 11, 31))))
 
-    def checkRule(s: List[Char], ruleIndex: Int): (Boolean, List[Char]) = 
-      //println(s"${s}\t${ruleIndex}")
-      (s, rules(ruleIndex)) match {
-      case (head::tail, Rule.Matches(letter))  => if (head == letter) (true, tail) else (false, s)
-      case (head::tail, Rule.Depends(moreRules)) => moreRules.foldLeft((false, s))(
-        (acc,seqRules) => if (acc._1 ) acc else checkSeqRules(s, seqRules))
-      case (Nil,_) => (true, s)
-    }
-  
-    def checkSeqRules(s: List[Char], rules:List[Int]): (Boolean, List[Char]) =
-      //println(s"${s}\t${rules}")
-      rules.foldLeft((true,s))(
-        (acc,rule) => acc match {
-          case((false,_)) => acc
-          case((true,head::tail)) => checkRule(head::tail, rule)
-          case((true,_)) => (false,Nil)
-        })
-  
-    //Check messages
-    sections(1).map((s) => checkRule(s.toList,0)).filter(
-      (pair) => pair._1 && pair._2.length == 0).size
+    def generateRegex(rule:Int, allRules:Map[Int, Rule], depth:Int) :String = 
+      if (depth > 0)
+        allRules(rule) match {
+          case Rule.Matches(l: Char) => l.toString()
+          case Rule.Depends(seq:LazyList[List[Int]]) => {
+            "(" + seq.map((rules) => rules.flatMap(
+              (rule) => generateRegex(rule, allRules, depth - 1)).mkString
+              ).mkString("|")+")"
+          }
+        }
+      else ""
+
+    val regexString = generateRegex(0, rules, 14)
+    import scala.util.matching.Regex
+    val regex = Regex(regexString)
+    sections(1).map((s) => if (regex.matches(s)) 1 else 0).sum
   }
 
   def main(args: Array[String]): Unit = {
     println("part1=" + countValidMessages1(fullInput))
     println("part2=" + countValidMessages2(fullInput))
-    // println(countValidMessages2(smallInput2).toList)
   }
 }

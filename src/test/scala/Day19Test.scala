@@ -40,4 +40,9 @@ class Day19Test {
   @Test def testPart2a(): Unit = {
     assertEquals(12, countValidMessages2(smallInput2))
   }
+
+  @Test def testPart2b(): Unit = {
+    assertEquals(282, countValidMessages2(fullInput))
+  }
+
 }
