@@ -38,15 +38,16 @@ object Day20 {
   }
 
   type Location = ((Int,Int),Tile)
+  type LocationMap = Map[(Int,Int),Tile]
 
-  def findNeighbors(x:Int, y:Int, locations:Map[(Int,Int),Tile], remaingTiles:LazyList[Tile]) :(Map[(Int,Int),Tile],LazyList[Tile]) = {
+  def findNeighbors(x:Int, y:Int, locations:LocationMap, remaingTiles:LazyList[Tile]) :(LocationMap,LazyList[Tile]) = {
     val xytile = locations((x,y))
 
     def remove(tile:LazyList[Tile], id:Int) = tile.filter(_.id != id)
 
     def findNeighbor(neighBorX: Int, neighBorY: Int, compare: (Tile,Tile) => Boolean, 
-      locations:Map[(Int,Int),Tile], remaingTiles:LazyList[Tile]) : 
-      (Map[(Int,Int),Tile], LazyList[Tile]) = 
+      locations:LocationMap, remaingTiles:LazyList[Tile]) :
+      (LocationMap, LazyList[Tile]) = 
         locations.get((neighBorX, neighBorY)) match {
           case Some(t) => (locations, remaingTiles)
           case None => {
@@ -97,25 +98,110 @@ object Day20 {
     (locationsTop, remaingTilesTop)
   }
 
-  def productCorners(input:LazyList[String]) = {
+  def computeLocations(input:LazyList[String]) = {
     val sections = Day16.extractSections(input)
     val tiles = sections.map(Tile(_))
     val firstTile = tiles.head
-    val initialLocations = Map[(Int,Int),Tile]((0,0)->firstTile)
+    val initialLocations = Map((0,0)->firstTile)
     val remaingTiles = tiles.tail
-    val locations = findNeighbors(0,0,initialLocations,remaingTiles)._1
-    val points = locations.toList.filter(_._2.id > 0).map(_._1)
-    val minX = points.map(_._1).min
-    val maxX = points.map(_._1).max
-    val minY = points.map(_._2).min
-    val maxY = points.map(_._2).max
+    findNeighbors(0,0,initialLocations,remaingTiles)._1
+  }
+
+  def getPoints(locations: Map[(Int,Int), Tile]) =
+    locations.toList.filter(_._2.id > 0).map(_._1)
+
+  def getCorners(points: List[(Int,Int)]) =
+    val allX = points.map(_._1)
+    val allY = points.map(_._2)
+    (allX.min, allY.min, allX.max, allY.max)
+
+
+  def productCorners(input: LazyList[String]) = {
+    val locations = computeLocations(input)
+    val points = getPoints(locations)
+    val (minX, minY, maxX, maxY) = getCorners(points)
 
     def idLong(x:Int,y:Int) = locations(x,y).id.toLong
 
     idLong(minX,minY) * idLong(minX,maxY) * idLong(maxX,minY) * idLong(maxX,maxY)
   }
 
+  def removeBorders(tile: Tile) =
+    tile.grid.tail.dropRight(1).map(_.tail.dropRight(1))
+
+  def stitchImages(locations: LocationMap) = {
+    val points = getPoints(locations)
+    val (minX, minY, maxX, maxY) = getCorners(points)
+    val tiles = for(y <- minY to maxY) yield {
+      for(x <- minX to maxX) yield removeBorders(locations(x,y))
+    }
+
+    val tileSize = tiles(0)(0).size
+    val initialVector = (1 to tileSize).map((i)=>Vector[Char]()).toVector
+    val grid = tiles.flatMap((tilesRow) => tilesRow.foldLeft(initialVector)(
+      (acc,tile) => (acc zip tile).map( _ ++ _)
+    )).toVector
+
+    Tile(0, grid)
+  }
+
+  val monsterPattern = Vector(
+    "                  # ",
+    "#    ##    ##    ###",
+    " #  #  #  #  #  #   ")
+  val monsterMaxX = monsterPattern(0).size
+  val monsterMaxY = monsterPattern.size
+
+  def findSeaMonster(grid: Vector[Vector[Char]]) = {
+
+    def fits(monsterX:Int,monsterY:Int) =
+      (for (x <- 0 until monsterMaxX;y <- 0 until monsterMaxY) yield (x,y)).foldLeft(true)(
+        (acc,pos) => acc && (monsterPattern(pos._2)(pos._1) match {
+          case ' ' => true
+          case '#' => grid(monsterY+pos._2)(monsterX+pos._1) == '#'
+        }))
+
+    val possibleLocation = (for
+      (x <- 0 until grid(0).size - monsterMaxX;
+       y <- 0 until grid.size - monsterMaxY) yield (x,y))
+
+    possibleLocation.filter(fits)
+  }
+
+  def waterRoughness(input: LazyList[String]) = {
+    val locations = computeLocations(input)
+    val points = getPoints(locations)
+    val (minX, minY, maxX, maxY) = getCorners(points)
+
+    val grid = stitchImages(locations)
+    val (monsterLocations, tileWithMonster) = grid.allCombinations.map(
+      (tile) => (findSeaMonster(tile.grid), tile)
+    ).filter(_._1.length > 0).take(1)(0)
+
+    def addMonster(grid: Vector[Vector[Char]], position:(Int,Int)) =
+      grid.take(position._2)
+      ++ {
+        val matchingRows = grid.slice(position._2, position._2+monsterMaxY)
+        val z = grid.slice(position._2, position._2+monsterMaxY) zip monsterPattern
+        z.map((gridRow, monsterRow) => {
+          // Insert the sea monster
+          val insertedMonster = (gridRow.slice(position._1, position._1 + monsterRow.size) zip monsterRow).map {
+            // case will fail to detect incorrectly detected monsters
+            case (g,' ') => g
+            case ('#','#') => 'O'
+          }
+          // Put the row back together
+          gridRow.take(position._1) ++ insertedMonster ++ gridRow.slice(position._1 + monsterRow.size, gridRow.size)
+        })
+      }
+      ++ grid.slice(position._2+monsterMaxY, grid.size)
+
+    val gridWithMonster = monsterLocations.foldLeft(tileWithMonster.grid)(addMonster)
+    gridWithMonster.flatten.count(_ == '#')
+  }
+
   def main(args: Array[String]): Unit = {
     println("part1=" + productCorners(fullInput))
+    println("part2=" + waterRoughness(fullInput))
   }
 }
