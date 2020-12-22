@@ -27,7 +27,7 @@ object Day22 {
     }
  
   def score(input:LazyList[String]) = 
-    val sections = Day16.extractSections(fullInput)
+    val sections = Day16.extractSections(input)
     val cards1 = sections(0).tail.map(_.toInt).toList
     val cards2 = sections(1).tail.map(_.toInt).toList
     val gameResult = play(cards1,cards2)
