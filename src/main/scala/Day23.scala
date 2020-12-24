@@ -3,43 +3,62 @@ object Day23 {
   val exampleInput = "389125467"
   val puzzleInput = "284573961"
 
-  def inputToList(s:String) = s.toList.map(_.toString.toInt)
+  def inputToList(s:String) : LazyList[Int] = s.to(LazyList).map(_.toString.toInt)
 
-  def oneRound(list:List[Int]) = 
-    val listLength = list.length
-    def modulo(i:Int) = (i + listLength - 1) % listLength + 1
+  def inputToVector(initialList:LazyList[Int], count:Int) : Array[Int] =
+    val l = initialList ++ (initialList.length  + 1 to count)
+    val pairs = l zip (l.tail ++ List(l.head))
+    pairs.sortBy(_._1).map(_._2).toArray
 
-    val n = list(0)
-    val toInsert = list.slice(1,4)
-    val remain = list.head::list.drop(4)
-    def findIndexForInsert(n:Int) : Int =
-      val previousN = modulo(n-1)
-      remain.indexOf(previousN) match {
-        case -1 => findIndexForInsert(previousN)
-        case i => i
-      }
-    val indexForInsert = findIndexForInsert(n)
-    val r = remain.slice(0,indexForInsert + 1)++ toInsert ++ remain.slice(indexForInsert + 1, remain.length)
-    r.tail ++ List(r.head)
+  def toList(mapping:Array[Int]) : LazyList[Int] =
+    mapping.foldLeft(LazyList(1))((acc,next) => acc ++ LazyList(mapping(acc.last -1)))
 
-  def shiftRight(l:List[Int], n:Int) =
-    (1 to n).foldLeft(l)((acc,_) => l.last::l.dropRight(1))
+  def finalOrder(l: LazyList[Int]) = l.tail.dropRight(1).mkString("")
 
-  def nRound(list: List[Int], count:Int) =
-    val r = (1 to count).foldLeft(list)((acc,_) => oneRound(acc))
-    val nbShift = count % list.length
-    shiftRight(r, nbShift)
+  def toStr(mapping: Array[Int]) =
+    val l = toList(mapping)
+    val extract = l.take(10) ++ List("","","") ++ l.takeRight(10)
+    "(" + extract.mkString(",") +")"
 
-  def finalOrder(l:List[Int]) : List[Int] = l match {
-    case 1::tail => tail
-    case head::tail => finalOrder(tail ++ List(head))
+  def modulo2(value: Int, mapping: Array[Int]) : Int = (value + mapping.length) % mapping.length
+
+  def iterate2(l:LazyList[Int], size: Int, count:Int) : Array[Int]=
+    val firstValue = l.head
+    val mapping = inputToVector(l, size)
+    (1 to count).foldLeft(firstValue)((acc,i) => {
+      nextRound(acc, mapping)
+      mapping(modulo2(acc - 1, mapping))
+    })
+    mapping
+
+  def iterate(l:LazyList[Int], size: Int, count:Int) : LazyList[Int]=
+    toList(iterate2(l,size,count))
+
+  def nextRound(value: Int, mapping: Array[Int]) = {
+    def modulo(value:Int) : Int = modulo2(value, mapping)
+    def getNext(value: Int) = mapping( modulo(value - 1))
+    def setNext(target : Int, value:Int) = mapping(modulo(target - 1)) = value
+
+    val next1 = getNext(value)
+    val next2 = getNext(next1)
+    val next3 = getNext(next2)
+    val valueToInsert = (value - 1 to value - 4 by -1).map(i => modulo(i - 1) + 1).filter(v => (v != next1 && v != next2 && v != next3))(0)
+    setNext(value, getNext(next3))
+    setNext(next3, getNext(valueToInsert))
+    setNext(valueToInsert, next1)
   }
 
-  def labels(input:String) = 
+  def labels(input:String) =
     val l = inputToList(input)
-    finalOrder(nRound(l,100)).mkString("")
+    finalOrder(iterate(l, l.length, 100)).mkString("")
+
+  def product(input:String) =
+    val l = inputToList(input)
+    val m = iterate2(l, 1000000,10000000)
+    m(0).toLong * m(m(0) - 1).toLong
 
   def main(args: Array[String]): Unit = {
     println("part1=" + labels(puzzleInput))
-  }
+    println("part2=" + product(puzzleInput))
+ }
 }

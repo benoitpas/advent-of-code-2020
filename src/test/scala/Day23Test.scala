@@ -7,8 +7,8 @@ class Day23Test {
 
   @Test def test10Rounds(): Unit = {
     val exampleList = inputToList(exampleInput)
-    val r10 = nRound(exampleList, 10)
-    assertEquals(List(5, 8, 3, 7, 4, 1, 9, 2, 6), r10)
+    val r10 = iterate(exampleList, exampleInput.length, 10)
+    assertEquals(List(1, 9, 2, 6, 5, 8, 3, 7, 4), r10.dropRight(1))
     assertEquals("92658374", finalOrder(r10).mkString)
   }
 
@@ -19,4 +19,8 @@ class Day23Test {
   @Test def testPart1(): Unit = {
     assertEquals("26354798", labels(puzzleInput))
   }
+  @Test def testPart2(): Unit = {
+    assertEquals(149245887792L, product(exampleInput))
+  }
+
 }
