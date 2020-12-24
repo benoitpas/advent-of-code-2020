@@ -20,4 +20,8 @@ class Day24Test {
   @Test def test1d(): Unit = {
     assertEquals(322, countFlippedTiles(fullInput))
   }
+
+  @Test def test2(): Unit = {
+    assertEquals(2208, countBlackTiles(smallInput))
+  }
 }

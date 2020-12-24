@@ -63,10 +63,49 @@ object Day24 {
 
   def findTile(instructions:String) : Tile = findTile((0,0), instructions)
 
+  def getTiles(instructions : LazyList[String]) = instructions.groupMapReduce(findTile)(_ => 1)(_ + _)
+
+  // 1 is black, 0 white
+  def getTilesStatus(instructions : LazyList[String]) = getTiles(instructions).map((k,v) => (k, v % 2))
+
   def countFlippedTiles(instructions: LazyList[String]) =
-    instructions.groupMapReduce(findTile)(_ => 1)(_ + _).values.map(v => v % 2).sum
+    getTiles(instructions).values.map(v => v % 2).sum
+
+  def countBlackNeighbors(tile :Tile, status: Map[(Int,Int),Int]) : Int =
+    neighbors.map(neighbor => {
+      val nTile = (tile._1 + neighbor._2._1, tile._2 + neighbor._2._2)
+      status.getOrElse(nTile, 0)
+    }).sum
+
+  def addWhiteNeighbors(tiles:Map[(Int,Int),Int]) =
+    tiles.foldLeft(tiles)((accTiles,tile) => {
+      val newNeighbors = neighbors.flatMap( (n) => {
+        val nTile = (tile._1._1 + n._2._1, tile._1._2 + n._2._2)
+        accTiles.get(nTile) match {
+          case Some(_) => List()
+          case None => List(nTile -> 0)
+        }
+      })
+      accTiles ++ newNeighbors
+    })
+
+  def next(tiles:Map[(Int,Int), Int]) =
+    addWhiteNeighbors(tiles).map( (tile,status) => {
+      val black = countBlackNeighbors(tile,tiles)
+      status match {
+        case 1 if (black == 0 || black > 2) => (tile, 0)
+        case 0 if (black == 2) => (tile, 1)
+        case _ => (tile, status)
+      }
+    })
+
+  def countBlackTiles(input : LazyList[String]) =
+    val tiles = getTilesStatus(input)
+    val nTiles100 = (1 to 100).foldLeft(tiles)((acc,_) => next(acc))
+    nTiles100.values.sum
 
   def main(args: Array[String]): Unit = {
     println("part1=" + countFlippedTiles(fullInput))
+    println("part2=" + countBlackTiles(fullInput))
   }
 }
