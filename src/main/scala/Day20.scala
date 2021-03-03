@@ -161,9 +161,11 @@ object Day20 {
           case '#' => grid(monsterY+pos._2)(monsterX+pos._1) == '#'
         }))
 
-    val possibleLocation = (for
-      (x <- 0 until grid(0).size - monsterMaxX;
-       y <- 0 until grid.size - monsterMaxY) yield (x,y))
+    val possibleLocation = 
+      (for (
+        x <- 0 until grid(0).size - monsterMaxX; 
+        y <- 0 until grid.size - monsterMaxY) 
+        yield (x,y))
 
     possibleLocation.filter(fits)
   }
