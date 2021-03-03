@@ -42,7 +42,7 @@ object Day12 {
       case ('R', a, d) => (rotate(d, a, 'R'), state._2)
       case ('L', a, d) => (rotate(d, a, 'L'), state._2)
 
-  val iPos1 = State1('E',(0,0))
+  val iPos1 : State1 = ('E',(0,0))
 
   def iterate1(input:List[String]) =
     val lastState = input.foldLeft(iPos1)(next1)
@@ -51,18 +51,17 @@ object Day12 {
 
   case class State2(ship: Position, waypoint: Position) {
     def moveShip(v:Int) = State2(
-      Position(
-        ship._1 + waypoint._1 * v,
+      ( ship._1 + waypoint._1 * v,
         ship._2 + waypoint._2 * v),
       waypoint)
 
     def moveWaypoint(h: Char, v:Int) = State2(
       ship,
       h match {
-        case 'N' => Position(waypoint._1, waypoint._2 - v)
-        case 'S' => Position(waypoint._1, waypoint._2 + v)
-        case 'E' => Position(waypoint._1 - v, waypoint._2)
-        case 'W' => Position(waypoint._1 + v, waypoint._2)
+        case 'N' => (waypoint._1, waypoint._2 - v)
+        case 'S' => (waypoint._1, waypoint._2 + v)
+        case 'E' => (waypoint._1 - v, waypoint._2)
+        case 'W' => (waypoint._1 + v, waypoint._2)
       }
     )
 

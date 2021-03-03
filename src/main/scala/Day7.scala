@@ -35,8 +35,8 @@ object Day7 {
   def bagInstanceRegex = "(\\d+)\\s+(\\w+)\\s+(\\w+)".r
   def parseBagList(bagList: String) : List[(Int, BagType)]= bagList.split(",").toList.map { 
     (s) => bagInstanceRegex.findFirstMatchIn(s) match {
-      case Some(m) if (m.groupCount == 3) => (m.group(1).toInt, BagType(m.group(2),m.group(3)))
-      case None => (0,BagType("","")) // no other bags case
+      case Some(m) if (m.groupCount == 3) => (m.group(1).toInt, (m.group(2),m.group(3)))
+      case None => (0,("","")) // no other bags case
     }
 
   }
@@ -64,7 +64,7 @@ object Day7 {
       (if(bagInstance._1 > 0 ) 1 + containCount(bagInstance._2, rules) else 0)
       }.sum
 
-  val bt = BagType("shiny","gold")
+  val bt = ("shiny","gold")
 
   def main(args: Array[String]): Unit = {
     println("part1="+nbBagContain(bt,allRulesMap))
