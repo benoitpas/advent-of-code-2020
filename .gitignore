@@ -31,3 +31,5 @@ project/build.properties
 # Metals
 .bloop/
 .metals/
+
+.vscode/

@@ -33,8 +33,8 @@ object Day16 {
 
   def extractSections(input:LazyList[String]) = input.foldRight(LazyList[LazyList[String]]())(
     (s:String, acc:LazyList[LazyList[String]]) => (acc,s.trim) match  {
-      case (Nil,"") => acc
-      case (Nil,s) => LazyList(LazyList(s))
+      case (LazyList(), "") => acc
+      case (LazyList(), s) => LazyList(LazyList(s))
       case (_,"") => LazyList[String]()#::acc
       case (head#::tail,s) => (s#::head)#::tail
   })
